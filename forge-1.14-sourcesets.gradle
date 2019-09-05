@@ -1,0 +1,52 @@
+//Begin Internal Project Dep Management
+/*
+These blocks are meant only to create, arrange, and interlink sourceSets
+Anything to do with external dependencies should go in other blocks
+ */
+sourceSets {
+    api
+    generated
+}
+
+configurations {
+    //API
+    apiImplementation.extendsFrom minecraft
+
+    //GENERATED
+    generatedimplementation.extendsFrom apiImplementation
+    generatedcompileOnly.extendsFrom apiCompileOnly
+    generatedcompileClasspath.extendsFrom apiCompileClasspath
+    generatedannotationProcessor.extendsFrom apiAnnotationProcessor
+    generatedruntimeOnly.extendsFrom apiRuntimeOnly
+    generatedruntimeClasspath.extendsFrom apiRuntimeClasspath
+
+    //MAIN
+    implementation.extendsFrom generatedImplementation
+    compileOnly.extendsFrom generatedCompileOnly
+    compileClasspath.extendsFrom generatedCompileClasspath
+    annotationProcessor.extendsFrom generatedAnnotationProcessor
+    runtimeOnly.extendsFrom generatedRuntimeOnly
+    runtimeClasspath.extendsFrom generatedRuntimeClasspath
+
+    //TEST
+    testImplementation.extendsFrom implementation
+    testCompileOnly.extendsFrom compileOnly
+    testCompileClasspath.extendsFrom compileClasspath
+    testAnnotationProcessor.extendsFrom annotationProcessor
+    testRuntimeOnly.extendsFrom runtimeOnly
+    testRuntimeClasspath.extendsFrom compileClasspath
+}
+
+dependencies {
+    generatedImplementation sourceSets.api.output
+    implementation sourceSets.generated.output
+    testImplementation sourceSets.main.output
+}
+
+task apiJar(type: Jar){
+    group 'build'
+    description jar.description.replace("main", "api")
+    from sourceSets.api.output
+}
+
+//End Internal Project Dep Management
