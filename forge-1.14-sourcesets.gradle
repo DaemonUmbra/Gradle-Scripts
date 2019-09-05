@@ -3,6 +3,41 @@
 These blocks are meant only to create, arrange, and interlink sourceSets
 Anything to do with external dependencies should go in other blocks
  */
+
+if(!project.plugins.findPlugin('java')){
+    System.out.println("DaemonUmbra's \"forge-1.14-sourceset\" script requires the \'java\' plugin to function")
+    return
+}
+
+boolean isKeyTrue(String property) {
+    if (project.properties.containsKey(property)) {
+        return (project.properties.get(property) as String).toLowerCase(Locale.ROOT) == "true"
+    } else if (System.getenv().containsKey(property))
+        return System.getenv(property).toLowerCase(Locale.ROOT) == "true"
+    else
+        return false
+}
+
+String keyPrefix = "net.daemonumbra.forge-1.14-sourceset."
+String hideDescriptionKey = keyPrefix + "disableDescription"
+String fatJarKey = keyPrefix + "fatJar"
+String autorunKey = keyPrefix + "autorun"
+if (!isKeyTrue(hideDescriptionKey)) {
+    System.out.println(
+            "Running DaemonUmbra's \"forge-1.14-sourceset\" script\n" +
+            "To Disable this message set \"${hideDescriptionKey}\" to true as a project property or environment variable\n" +
+            "To have this script set jar to autorun apiJar, set \"${autorunKey}\" to true as a project property or environment variable\n" +
+            "To have this script set jar to include the api classes, set \"${fatJarKey}\" to true as a project property or enfironment variable (implies autorun)"
+    )
+}
+
+jar {
+    if(isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
+        dependsOn apiJar
+    if(isKeyTrue(fatJarKey))
+        from sourceSets.api.output
+}
+
 sourceSets {
     api
     generated
@@ -43,9 +78,10 @@ dependencies {
     testImplementation sourceSets.main.output
 }
 
-task apiJar(type: Jar){
+task apiJar(type: Jar) {
     group 'build'
     description jar.description.replace("main", "api")
+    classifier 'api'
     from sourceSets.api.output
 }
 
