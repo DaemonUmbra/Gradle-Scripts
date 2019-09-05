@@ -4,5 +4,6 @@
 /gradle
 /src
 build.gradle
+gradle.properties
 gradlew
 gradlew.bat

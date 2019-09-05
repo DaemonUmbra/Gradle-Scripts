@@ -4,10 +4,10 @@ These blocks are meant only to create, arrange, and interlink sourceSets
 Anything to do with external dependencies should go in other blocks
  */
 
-if(!project.plugins.findPlugin('java')){
-    System.out.println("DaemonUmbra's \"forge-1.14-sourceset\" script requires the \'java\' plugin to function")
-    return
-}
+String keyPrefix = "net.daemonumbra.forge-1.14-sourceset."
+String hideDescriptionKey = keyPrefix + "disableDescription"
+String fatJarKey = keyPrefix + "fatJar"
+String autorunKey = keyPrefix + "autorun"
 
 boolean isKeyTrue(String property) {
     if (project.properties.containsKey(property)) {
@@ -18,23 +18,34 @@ boolean isKeyTrue(String property) {
         return false
 }
 
-String keyPrefix = "net.daemonumbra.forge-1.14-sourceset."
-String hideDescriptionKey = keyPrefix + "disableDescription"
-String fatJarKey = keyPrefix + "fatJar"
-String autorunKey = keyPrefix + "autorun"
+if (!project.plugins.findPlugin('java')) {
+    System.out.println("DaemonUmbra's \"forge-1.14-sourceset\" script requires the \'java\' plugin to function")
+    return
+}
 if (!isKeyTrue(hideDescriptionKey)) {
-    System.out.println(
+    project.logger.lifecycle(
             "Running DaemonUmbra's \"forge-1.14-sourceset\" script\n" +
-            "To Disable this message set \"${hideDescriptionKey}\" to true as a project property or environment variable\n" +
-            "To have this script set jar to autorun apiJar, set \"${autorunKey}\" to true as a project property or environment variable\n" +
-            "To have this script set jar to include the api classes, set \"${fatJarKey}\" to true as a project property or enfironment variable (implies autorun)"
+                    "To Disable this message set \"${hideDescriptionKey}\" to true as a project property or environment variable\n" +
+                    "To have this script set jar to autorun apiJar, set \"${autorunKey}\" to true as a project property or environment variable\n" +
+                    "To have this script set jar to include the api classes, set \"${fatJarKey}\" to true as a project property or enfironment variable (implies autorun)"
     )
 }
 
+afterEvaluate {
+    for (SourceSet sourceSet : sourceSets.getAsMap().values()) {
+        for (File file : sourceSet.java.srcDirs) {
+            file.mkdirs()
+        }
+        for (File file : sourceSet.resources.srcDirs) {
+            file.mkdirs()
+        }
+    }
+}
+
 jar {
-    if(isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
+    if (isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
         dependsOn apiJar
-    if(isKeyTrue(fatJarKey))
+    if (isKeyTrue(fatJarKey))
         from sourceSets.api.output
 }
 
