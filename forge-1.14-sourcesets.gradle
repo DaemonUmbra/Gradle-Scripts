@@ -3,7 +3,7 @@
 These blocks are meant only to create, arrange, and interlink sourceSets
 Anything to do with external dependencies should go in other blocks
  */
-
+Logger logger = getLogger()
 String keyPrefix = "net.daemonumbra.forge-1.14-sourceset."
 String hideDescriptionKey = keyPrefix + "disableDescription"
 String fatJarKey = keyPrefix + "fatJar"
@@ -18,17 +18,23 @@ boolean isKeyTrue(String property) {
         return false
 }
 
+logger.log(LogLevel.LIFECYCLE, "Running DaemonUmbra's \"forge-1.14-sourceset\" script\n")
+
 if (!project.plugins.findPlugin('java')) {
-    System.out.println("DaemonUmbra's \"forge-1.14-sourceset\" script requires the \'java\' plugin to function")
+    logger.log(LogLevel.WARN, "DaemonUmbra's \"forge-1.14-sourceset\" script requires the \'java\' plugin to function")
     return
 }
 if (!isKeyTrue(hideDescriptionKey)) {
-    project.logger.lifecycle(
-            "Running DaemonUmbra's \"forge-1.14-sourceset\" script\n" +
-                    "To Disable this message set \"${hideDescriptionKey}\" to true as a project property or environment variable\n" +
-                    "To have this script set jar to autorun apiJar, set \"${autorunKey}\" to true as a project property or environment variable\n" +
-                    "To have this script set jar to include the api classes, set \"${fatJarKey}\" to true as a project property or enfironment variable (implies autorun)"
+    logger.log(LogLevel.LIFECYCLE,
+        "To Disable this message set \"${hideDescriptionKey}\" to true as a project property or environment variable\n" +
+        "To have this script set jar to autorun apiJar, set \"${autorunKey}\" to true as a project property or environment variable\n" +
+        "To have this script set jar to include the api classes, set \"${fatJarKey}\" to true as a project property or enfironment variable (implies autorun)"
     )
+}
+if (project.plugins.findPlugin('maven-publish')) {
+    logger.log(LogLevel.WARN,
+        "this script may cause a \"cannot configure the \'publishing\' extension after it has been accessed\" error,\n" +
+        "to fix this please make sure you apply maven-publish after all other plugins and scripts")
 }
 
 afterEvaluate {
@@ -44,7 +50,7 @@ afterEvaluate {
 
 jar {
     if (isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
-        dependsOn apiJar
+        dependsOn tasks.getByName('apiJar')
     if (isKeyTrue(fatJarKey))
         from sourceSets.api.output
 }
