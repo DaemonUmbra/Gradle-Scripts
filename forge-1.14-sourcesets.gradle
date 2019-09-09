@@ -37,24 +37,6 @@ if (project.plugins.findPlugin('maven-publish')) {
         "to fix this please make sure you apply maven-publish after all other plugins and scripts")
 }
 
-afterEvaluate {
-    for (SourceSet sourceSet : sourceSets.getAsMap().values()) {
-        for (File file : sourceSet.java.srcDirs) {
-            file.mkdirs()
-        }
-        for (File file : sourceSet.resources.srcDirs) {
-            file.mkdirs()
-        }
-    }
-}
-
-jar {
-    if (isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
-        dependsOn tasks.getByName('apiJar')
-    if (isKeyTrue(fatJarKey))
-        from sourceSets.api.output
-}
-
 sourceSets {
     api
     generated
@@ -100,6 +82,24 @@ task apiJar(type: Jar) {
     description jar.description.replace("main", "api")
     classifier 'api'
     from sourceSets.api.output
+}
+
+jar {
+    if (isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
+        dependsOn tasks.getByName('apiJar')
+    if (isKeyTrue(fatJarKey))
+        from sourceSets.api.output
+}
+
+afterEvaluate {
+    for (SourceSet sourceSet : sourceSets.getAsMap().values()) {
+        for (File file : sourceSet.java.srcDirs) {
+            file.mkdirs()
+        }
+        for (File file : sourceSet.resources.srcDirs) {
+            file.mkdirs()
+        }
+    }
 }
 
 //End Internal Project Dep Management
