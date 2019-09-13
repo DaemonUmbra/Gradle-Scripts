@@ -47,12 +47,12 @@ configurations {
     apiImplementation.extendsFrom minecraft
 
     //GENERATED
-    generatedimplementation.extendsFrom apiImplementation
-    generatedcompileOnly.extendsFrom apiCompileOnly
-    generatedcompileClasspath.extendsFrom apiCompileClasspath
-    generatedannotationProcessor.extendsFrom apiAnnotationProcessor
-    generatedruntimeOnly.extendsFrom apiRuntimeOnly
-    generatedruntimeClasspath.extendsFrom apiRuntimeClasspath
+    generatedImplementation.extendsFrom apiImplementation
+    generatedCompileOnly.extendsFrom apiCompileOnly
+    generatedCompileClasspath.extendsFrom apiCompileClasspath
+    generatedAnnotationProcessor.extendsFrom apiAnnotationProcessor
+    generatedRuntimeOnly.extendsFrom apiRuntimeOnly
+    generatedRuntimeClasspath.extendsFrom apiRuntimeClasspath
 
     //MAIN
     implementation.extendsFrom generatedImplementation
