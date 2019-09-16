@@ -7,7 +7,8 @@ Logger logger = getLogger()
 String keyPrefix = "net.daemonumbra.forge-1.14-sourceset."
 String hideDescriptionKey = keyPrefix + "disableDescription"
 String fatJarKey = keyPrefix + "fatJar"
-String autorunKey = keyPrefix + "autorun"
+String autorunApiJarKey = keyPrefix + "autorun.api"
+String autorunSourcesJarKey = keyPrefix + "autorun.sources"
 
 boolean isKeyTrue(String property) {
     if (project.properties.containsKey(property)) {
@@ -27,7 +28,8 @@ if (!project.plugins.findPlugin('java')) {
 if (!isKeyTrue(hideDescriptionKey)) {
     logger.log(LogLevel.LIFECYCLE,
         "To Disable this message set \"${hideDescriptionKey}\" to true as a project property or environment variable\n" +
-        "To have this script set jar to autorun apiJar, set \"${autorunKey}\" to true as a project property or environment variable\n" +
+        "To have this script set jar to autorun apiJar, set \"${autorunApiJarKey}\" to true as a project property or environment variable\n" +
+        "To have this script set jar to autorun sourcesJar, set \"${autorunSourcesJarKey}\" to true as a project property or environment variable\n" +
         "To have this script set jar to include the api classes, set \"${fatJarKey}\" to true as a project property or enfironment variable (implies autorun)"
     )
 }
@@ -84,9 +86,19 @@ task apiJar(type: Jar) {
     from sourceSets.api.output
 }
 
+task sourcesJar(type: Jar){
+    group 'build'
+    description 'Assembles a jar archive containing the source files'
+    from sourceSets.api.allJava
+    from sourceSets.main.allJava
+    classifier 'sources'
+}
+
 jar {
-    if (isKeyTrue(autorunKey) || isKeyTrue(fatJarKey))
+    if (isKeyTrue(autorunApiJarKey) || isKeyTrue(fatJarKey))
         dependsOn tasks.getByName('apiJar')
+    if (isKeyTrue(autorunSourcesJarKey))
+        dependsOn tasks.getByName('sourcesJar')
     if (isKeyTrue(fatJarKey))
         from sourceSets.api.output
 }
