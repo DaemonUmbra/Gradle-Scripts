@@ -1,0 +1,83 @@
+//Begin Internal Project Dep Management
+/*
+These blocks are meant only to create, arrange, and interlink sourceSets
+Anything to do with external dependencies should go in other blocks
+ */
+
+sourceSets {
+    api
+    generated
+}
+
+configurations {
+    //API
+    apiImplementation.extendsFrom minecraft
+
+    //GENERATED
+    generatedImplementation.extendsFrom apiImplementation
+    generatedCompileOnly.extendsFrom apiCompileOnly
+    generatedCompileClasspath.extendsFrom apiCompileClasspath
+    generatedAnnotationProcessor.extendsFrom apiAnnotationProcessor
+    generatedRuntimeOnly.extendsFrom apiRuntimeOnly
+    generatedRuntimeClasspath.extendsFrom apiRuntimeClasspath
+
+    //MAIN
+    implementation.extendsFrom generatedImplementation
+    compileOnly.extendsFrom generatedCompileOnly
+    compileClasspath.extendsFrom generatedCompileClasspath
+    annotationProcessor.extendsFrom generatedAnnotationProcessor
+    runtimeOnly.extendsFrom generatedRuntimeOnly
+    runtimeClasspath.extendsFrom generatedRuntimeClasspath
+
+    //TEST
+    testImplementation.extendsFrom implementation
+    testCompileOnly.extendsFrom compileOnly
+    testCompileClasspath.extendsFrom compileClasspath
+    testAnnotationProcessor.extendsFrom annotationProcessor
+    testRuntimeOnly.extendsFrom runtimeOnly
+    testRuntimeClasspath.extendsFrom compileClasspath
+}
+
+dependencies {
+    generatedImplementation sourceSets.api.output
+    implementation sourceSets.generated.output
+    testImplementation sourceSets.main.output
+}
+
+task apiJar(type: Jar) {
+    group 'build'
+    description jar.description.replace("main", "api")
+    classifier 'api'
+    from sourceSets.api.output
+}
+
+task sourcesJar(type: Jar){
+    group 'build'
+    description 'Assembles a jar archive containing the source files'
+    from sourceSets.api.allSource
+    from sourceSets.generated.allSource
+    from sourceSets.main.allSource
+    classifier 'sources'
+}
+
+task fatJar(type: Jar) {
+    group 'build'
+    description 'Assembles a jar archive containing the api and main classes'
+    classifier 'all'
+    from sourceSets.api.output
+    from sourceSets.generated.output
+    from sourceSets.main.output
+}
+
+afterEvaluate {
+    for (SourceSet sourceSet : sourceSets.getAsMap().values()) {
+        for (File file : sourceSet.allSource.srcDirs) {
+            file.mkdirs()
+        }
+        for (File file : sourceSet.resources.srcDirs) {
+            file.mkdirs()
+        }
+    }
+}
+
+//End Internal Project Dep Management
