@@ -51,6 +51,11 @@ task apiJar(type: Jar) {
     from sourceSets.api.output
 }
 
+jar {
+    from sourceSets.api.output
+    from sourceSets.generated.output
+}
+
 task sourcesJar(type: Jar){
     group 'build'
     description 'Assembles a jar archive containing the source files'
@@ -58,15 +63,6 @@ task sourcesJar(type: Jar){
     from sourceSets.generated.allSource
     from sourceSets.main.allSource
     classifier 'sources'
-}
-
-task fatJar(type: Jar) {
-    group 'build'
-    description 'Assembles a jar archive containing the api and main classes'
-    classifier 'all'
-    from sourceSets.api.output
-    from sourceSets.generated.output
-    from sourceSets.main.output
 }
 
 afterEvaluate {
