@@ -76,3 +76,15 @@ afterEvaluate {
 }
 
 //End Internal Project Dep Management
+
+// Begin Util methods
+
+ext.loadProperties = { File propsFile ->
+    Properties properties = new Properties()
+    propsFile.withInputStream {
+        properties.load(it)
+        properties.each {
+            ext.set(it.key, it.value)
+        }
+    }
+}
