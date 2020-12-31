@@ -1,4 +1,5 @@
 //Begin Internal Project Dep Management
+
 /*
 These blocks are meant only to create, arrange, and interlink sourceSets
 Anything to do with external dependencies should go in other blocks
@@ -6,6 +7,8 @@ Anything to do with external dependencies should go in other blocks
 sourceSets {
     api
     generated
+    main
+    test
 }
 
 configurations {
@@ -43,6 +46,10 @@ dependencies {
     testImplementation sourceSets.main.output
 }
 
+//End Internal Project Dep Management
+
+//Begin task creation and configuration
+
 task apiJar(type: Jar) {
     group 'build'
     description jar.description.replace("main", "api")
@@ -64,6 +71,21 @@ task sourcesJar(type: Jar){
     classifier 'sources'
 }
 
+task javadocJar(type: Jar) {
+    group = 'build'
+    description 'Assembles a jar containing the javadocs'
+    from javadoc
+    classifier = 'javadoc'
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+//End task creation and configuration
+
 afterEvaluate {
     for (SourceSet sourceSet : sourceSets.getAsMap().values()) {
         for (File file : sourceSet.allSource.srcDirs) {
@@ -75,9 +97,7 @@ afterEvaluate {
     }
 }
 
-//End Internal Project Dep Management
-
-// Begin Util methods
+//Begin Util methods
 
 ext.loadProperties = { File propsFile ->
     Properties properties = new Properties()
@@ -88,3 +108,5 @@ ext.loadProperties = { File propsFile ->
         }
     }
 }
+
+//End Util Methods
